@@ -17,16 +17,19 @@ colnames(Pond_data)<-c("Pond_ID","Date","Distance","pH","Cond.","Depth","UTM_Zon
                        "Mg","K","Na","Notes","Algae_d13C","Algae_d15N",
                        "Sed_d13C","Sed_d15N","X")
 colnames(Pond_data)
-
-#TN
-ggplot(Pond_data,aes(x=Distance,y=TN)) + 
-  geom_point()
+#let's figure out how d15N changes with distance from colony
+#simple linear regression doesn't capture data as well as I would like, we'll try creating different models
+#view the suitablility of the models using "summary(model)" or making plots of residuals and fitted data
+#compare models with AIC
+##start with total nitrogen (TN)
+#exponential model
 TN_exp<-nls(TN~a*exp(b*Distance),
             start=list(a=3,b=-1),
             data=Pond_data)
-plot(TN_exp)
+plot(TN_exp) #check residuals
 res_TN_1<-resid(TN_exp)
 hist(res_TN_1)
+#inverse model
 TN_inverse<-nls(TN~a+b*I(1/(Distance^2)),
                 start=list(a=3,b=-1),data=Pond_data)
 plot(TN_inverse)
@@ -34,6 +37,7 @@ res_TN_2<-resid(TN_inverse)
 hist(res_TN_2,breaks=11)
 TN_power<-nls(TN~a*Distance^b,
                 start=list(a=3,b=-1),data=Pond_data)
+#power model
 plot(TN_power)
 plot(fit_TN,res_TN_3,
      cex.axis=1.5,cex.lab=1.5,cex.main=1.5,cex.sub=1.5,
@@ -47,18 +51,10 @@ hist(res_TN_3,
      cex.axis=1.5,cex.lab=1.5,cex.main=1.5,
      xlab='Residuals',
      main='Histogram of total nitrogen residuals, power model')
-AIC(TN_exp,TN_inverse,TN_power,TN_null)
-TN_null<-lm(TN~1,data=Pond_data)
-anova(TN_inverse,TN_null)
-ggplot(Pond_data,aes(x=Distance,y=TN)) + 
-  geom_point() + 
-  theme_bw() +
-  geom_smooth(method="nls",
-              formula=y~a+b*I(1/x^2),
-              se=FALSE,
-              method.args=list(start=c(a=1,b=-1))) + 
-  labs(x="Distance from colony (km)",y="Total Nitrogen (mg/L)") + 
-  theme(text=element_text(size=20))
+#null model
+TN_null<-lm(TN~1,data=Pond_data) 
+AIC(TN_exp,TN_inverse,TN_power,TN_null)#inverse is the best result, however the residual plot did not look good
+                                      #so we're saying the power model is the best
 ggplot(Pond_data,aes(x=Distance,y=TN)) + 
   geom_point() + 
   theme_bw() +
@@ -68,23 +64,13 @@ ggplot(Pond_data,aes(x=Distance,y=TN)) +
               method.args=list(start=c(a=1,b=-1))) + 
   labs(x="Distance from colony (km)",y="Total Nitrogen (mg/L)") + 
   theme(text=element_text(size=20))
-ggplot(Pond_data,aes(x=Distance,y=Na)) + 
-  geom_point() + 
-  theme_bw() +
-  geom_smooth(method="nls",
-              formula = y~a*x^b,
-              se=FALSE,
-              method.args=list(start=c(a=1,b=-1))) + 
-  labs(x="Distance from colony (km)",y="Total Nitrogen (mg/L)") + 
-  theme(text=element_text(size=20))
 
-#Na
-Na_exp<-nls(Na~a*exp(b*Distance),
-            start=list(a=200,b=-1),
-            data=Pond_data)
+##Sodium (Na)
+#exponential model
 plot(Na_exp)
 res_Na_1<-resid(Na_exp)
 hist(res_Na_1)
+#inverse model
 Na_inverse<-nls(Na~a+b*I(1/(Distance^2)),
                 start=list(a=200,b=-1),data=Pond_data)
 plot(Na_inverse)
@@ -101,11 +87,13 @@ hist(res_Na_2,
      main='Histogram of sodium residuals, inverse model')
 Na_power<-nls(Na~a*Distance^b,
               start=list(a=200,b=-1),data=Pond_data)
+#power model
 plot(Na_power)
 res_Na_3<-resid(Na_power)
 hist(res_Na_3)
+#null model
 Na_null<-lm(Na~1,data=Pond_data)
-AIC(Na_exp,Na_inverse,Na_power,Na_null)
+AIC(Na_exp,Na_inverse,Na_power,Na_null) #inverse model best
 ggplot(Pond_data,aes(x=Distance,y=Na)) + 
   geom_point() + 
   theme_bw() + 
@@ -117,7 +105,6 @@ ggplot(Pond_data,aes(x=Distance,y=Na)) +
   ylab(bquote(Na^'+'*' (mg/L)')) + 
   theme(text=element_text(size=20))
 
-summary(model_NA)
 #Create a dataframe with only environmental variables
 Pond_env<-Pond_data[,c("TP","TN","DOC",
                        "TIC","Ca","Mg","K","Na")]
@@ -137,57 +124,30 @@ ggplot(Pond_data,aes(x=Distance,y=TN)) +
   theme_bw() + 
   labs(x='Distance from colony (km)',y='Total Nitrogen (mg/mL)') + 
   theme(text=element_text(size=20))
-#TP
+#total phosphorus (TP)
+#exponential model
 TP_exp<-nls(TP~a*exp(b*Distance),
             start=list(a=1,b=-1),
             data=Pond_data)
 plot(TP_exp)
 res_TP_1<-resid(TP_exp)
 hist(res_TP_1)
+#inverse model
 TP_inverse<-nls(TP~a+b*I(1/(Distance^2)),
                 start=list(a=1,b=-1),data=Pond_data)
 plot(TP_inverse)
 res_TP_2<-resid(TP_inverse)
 hist(res_TP_2)
+#power model
 TP_power<-nls(TP~a*Distance^b,
               start=list(a=.1,b=-.2),data=Pond_data)
 summary(TP_power)
 res_TP_3<-resid(TP_power)
 hist(res_TP_3)
-ggplot(Pond_data,aes(x=Distance,y=TP)) + 
-  geom_point() +
-  geom_smooth(method = "gam", 
-              formula = y~s(x,k=6)) 
-  
-ggplot(Pond_data,aes(x=Distance,y=TP)) + 
-  geom_point() + 
-  geom_line() + 
-  geom_smooth(method='nls',
-              formula=y~a+b*I(1/x^2),
-              se=FALSE,
-              method.args=list(start=c(a=1,b=-1))) +
-  theme_bw() + 
-  labs(x='Distance from colony (km)',y='Total Phosphorus (mg/mL)') +
-  theme(text=element_text(size=20))
-ggplot(Pond_data,aes(x=Distance,y=TP)) + 
-  geom_point() + 
-  geom_line() + 
-  geom_smooth(method='nls',
-              formula=y~a*exp(b*x),
-              se=FALSE,
-              method.args=list(start=c(a=1,b=-1))) +
-  theme_bw() + 
-  labs(x='Distance from colony (km)',y='Total Phosphorus (mg/mL)') +
-  theme(text=element_text(size=20))
-
-#bad
-
+#null model
 TP_null<-lm(TP~1,data=Pond_data)
-models_TP<-list(TP_exp,TP_inverse,TP_power)
-AIC(TP_exp,TP_inverse,TP_power,TP_null)
-aictab(cand.set=models_TP)
-Pond_data
-#DOC
+AIC(TP_exp,TP_inverse,TP_power,TP_null) #not happy with how any of the models look graphed
+#dissolved organic carbon (DOC)
 ggplot(Pond_data,aes(x=Distance,y=DOC)) + 
   geom_point() + 
   theme_bw() + 
@@ -195,8 +155,9 @@ ggplot(Pond_data,aes(x=Distance,y=DOC)) +
   labs(x='Distance from colony (km)',y='DOC (mg/mL)') +
   theme(text=element_text(size=20))
 DOC_lm<-lm(DOC~Distance,data=Pond_data)
-plot(DOC_lm)
-summary(DOC_lm)
+#simple linear model
+DOC_lm<-lm(DOC~Distance,data=Pond_data)
+#exponential model
 DOC_exp<-nls(DOC~a*exp(b*Distance),
                start=list(a=10,b=.1),
                data=Pond_data)
@@ -213,11 +174,13 @@ hist(res_DOC_1,
      cex.axis=1.5,cex.lab=1.5,cex.main=1.5,
      xlab='Residuals',
      main='Histogram of DOC residuals, exponential model')
+#inverse model
 DOC_inv<-nls(DOC~a+b*I(1/(Distance^2)),
               start=list(a=10,b=0.1),data=Pond_data)
 plot(DOC_inv)
 res_DOC_2<-resid(DOC_inv)
 hist(res_DOC_2)
+#power model
 DOC_power<-nls(DOC~a*Distance^b,
              start=list(a=10,b=-0.1),data=Pond_data)
 plot(DOC_power)
@@ -232,8 +195,9 @@ ggplot(Pond_data,aes(x=Distance,y=DOC)) +
               method.args=list(start=c(a=10,b=.1))) + 
   labs(x="Distance from colony (km)",y="DOC (mg/L)") + 
   theme(text=element_text(size=20))
+#null model
 DOC_null<-lm(DOC~1,data=Pond_data)
-AIC(DOC_exp,DOC_inv,DOC_power,DOC_null,DOC_lm)
+AIC(DOC_exp,DOC_inv,DOC_power,DOC_null,DOC_lm) #exponential model
 #TIC
 ggplot(Pond_data,aes(x=Distance,y=TIC)) + 
   geom_point() + 
