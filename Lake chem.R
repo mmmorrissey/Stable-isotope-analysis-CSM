@@ -1,36 +1,22 @@
 #Playing with CSM Pond Data 
 library(vegan)
-getwd()
-setwd("C:/Users/mmorr/OneDrive/Desktop/Grad School/Thesis/Waterrrr/Results")
-Pond_data<-read.csv("Water chemistry.csv")
-Trial_1<-read.csv("Trial 1.csv")
-
-ggplot(Trial_1,aes(x=Distance..km.,y=Value)) + 
-  facet_wrap("Analyte",ncol=2) + 
-  geom_point() +
-  facet_grid(Analyte~., scales = "free_y")
-  scales = "free_y"
 library(vctrs)
 library(ggplot2)
 library(ade4)
 library(gclus)
 library(ape)
 library(cluster)
+library(tidyr)
+library(egg)
+library(patchwork)
+Pond_data<-read.csv("Water chemistry.csv")
 colnames(Pond_data)
-ggplot(Pond_data,aes(x=Easting,y=Northing)) + 
-  geom_point()
 #Rename column names
 colnames(Pond_data)<-c("Pond_ID","Date","Distance","pH","Cond.","Depth","UTM_Zone",
                        "Easting","Northing","TP","TN","DOC","TIC","Ca",
                        "Mg","K","Na","Notes","Algae_d13C","Algae_d15N",
                        "Sed_d13C","Sed_d15N","X")
 colnames(Pond_data)
-#create plot with shared X axis
-library(tidyr)
-library(egg)
-library(patchwork)
-
-
 
 #TN
 ggplot(Pond_data,aes(x=Distance,y=TN)) + 
