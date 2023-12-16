@@ -1,6 +1,4 @@
 #Zooplankton
-getwd()
-setwd("C:\\Users\\mmorr\\OneDrive\\Desktop\\Grad School\\Thesis\\Zooplankton\\SIA Results Zoop\\")
 Zoop_SIA<-read.csv("Zooplankton SIA.csv")
 head(Zoop_SIA)
 colnames(Zoop_SIA)
