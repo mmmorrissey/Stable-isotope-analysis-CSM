@@ -1,5 +1,5 @@
 #Zooplankton
-Zoop_SIA<-read.csv("Zooplankton SIA.csv")
+Zoop_SIA<-read.csv("Zooplankton stable isotope and percent N and C.csv")
 head(Zoop_SIA)
 colnames(Zoop_SIA)
 colnames(Zoop_SIA)[5]<-"Distance"
