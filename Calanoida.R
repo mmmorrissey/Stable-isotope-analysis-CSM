@@ -35,7 +35,6 @@ plot(Cal_2)
 #resid & fit
 res_Cal_2<-resid(Cal_2)
 hist(res_Cal_2)
-#plot with both
 ggplot(Calanoida_SIA,aes(x=Distance,y=d15N)) + 
   geom_point() + 
   theme_bw() +
@@ -98,12 +97,11 @@ ggplot(Zoop_SIA,aes(x=Distance,y=d15N,colour=Order)) +
   labs(x="Distance from colony (km)") +
   ylab(bquote(δ^15*"N(‰)"))
 summary(glm3) #p-value = 0.000898,t-value = -6.082
-#LR = (1+t^2/(n-2))^(n/2)
+#Likelyhood Ratio = (1+t^2/(n-2))^(n/2)
 (-6.082)^2
 1+(36.99072/6)
 7.16512^4
 #LR = 6946847
-library(poweRlaw)
 #likehood ratio
 #LR = (1+t^2/(n-2))^(n/2)
 (-4.443)^2
