@@ -1,4 +1,3 @@
-#Playing with CSM Pond Data 
 library(vegan)
 library(vctrs)
 library(ggplot2)
@@ -44,7 +43,6 @@ plot(fit_TN,res_TN_3,
      xlab='Fitted Values',
      ylab='Standardized Residuals',
      pch=19)
-)
 fit_TN<-fitted(TN_power)
 res_TN_3<-resid(TN_power)
 hist(res_TN_3,
