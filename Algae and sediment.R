@@ -142,7 +142,7 @@ ggplot(Sed_algae,aes(x=Distance,y=d13C,colour=Variable)) +
 Sed_C<-lm(d13C~Distance,data=Sediment)  
 plot(Sed_C)
 summary(Sed_C)
-#LR = (1+F(dfnum/dfdenom))^(n/2)
+#Likelyhood Ratio = (1+F(dfnum/dfdenom))^(n/2)
 8.488*(1/10)
 1.8488^6
 #LR = 39.933
