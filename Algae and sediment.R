@@ -202,7 +202,7 @@ plot(Sediment$Distance,Sediment$d13C)
   
 CN_lm_sed<-lm(C.N~Distance,data=Sediment)
 res11<-resid(CN_lm_sed)
-hist(res11)#guuuud
+hist(res11)#good
 par(mfrow=c(2,2))
 summary(CN_lm_sed)
 plot(CN_lm_sed) #bowl shaped, no leverage
@@ -235,14 +235,6 @@ p6<-ggplot(Sediment,aes(x=Distance,y=percent.C)) +
 multiplot(p5,p6,cols=2)
 #------------------------------------
 #chlA
-#add distance to chla
-chla<-CSM_MOLLY_chla_data
-#only need first twelve distances
-Distance<-subset(Zoop_algae_sediment[1:12,])
-Distance<-Distance$Distance
-Distance<-Distance(c[1:12,])
-chla<-cbind(chla,Distance)
-#hooray
 #exponential
 chla_1<-nls(chla~a*exp(b*Distance),
             start=list(a=.1,b=-1),
@@ -272,12 +264,7 @@ summary(chla_3)
 #null
 chla_null<-lm(chla~1,data=chla)
 AIC(chla_1,chla_2,chla_3,chla_null)
-
-ggplot(chla,aes(x=Distance,y=chla)) + 
-  geom_point() + 
-  theme_bw() + 
-  labs(x='Distance from colony (km)')+ 
-  ylab(bquote("Chlorophyll  "*alpha))
+#inverse best
 ggplot(chla,aes(x=Distance,y=chla)) + 
   geom_point() + 
   theme_bw() + 
