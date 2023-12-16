@@ -1,25 +1,23 @@
 ##Cladocera
-shapiro.test(Cladocera_SIA$d15N)
-setwd("C:\\Users\\mmorr\\OneDrive\\Desktop\\Grad School\\Thesis\\Zooplankton\\SIA Results Zoop\\")
-Zoop_SIA<-read.csv("Zooplankton SIA.csv")
+Zoop_SIA<-read.csv("Zooplankton stable isotope and percent N and C.csv")
 colnames(Zoop_SIA)
 colnames(Zoop_SIA)[5]<-"Distance"
 colnames(Zoop_SIA)[6]<-"percent.N"
 colnames(Zoop_SIA)[7]<-"percent.C"
 Cladocera_SIA<-subset(Zoop_SIA,Order=="Cladocera")
-Calanoida_SIA<-subset(Zoop_SIA,Order=="Calanoida")
+Calanoida_SIA<-subset(Zoop_SIA,Order=="a")
 ##exponential
 #only gonna do NLS, compare using AIC
 #y = α*e(βx)
 nls1<-nls(d15N~ a*exp(b*Distance), 
           start=list(a=10,b=-1),
           data=Cladocera_SIA)
-plot(nls1)
-qqnorm(nls1)
+plot(nls1) #normality check
+qqnorm(nls1) #qqplot
 summary(nls1)
 res1<-resid(nls1)
 hist(res1)
-
+library(ggplot2)
 ggplot(Cladocera_SIA,aes(x=Distance,y=d15N)) + 
   geom_point() + 
   theme_bw() +
@@ -29,7 +27,6 @@ ggplot(Cladocera_SIA,aes(x=Distance,y=d15N)) +
               se=FALSE) + 
   labs(x="Distance from colony (km") + 
   ylab(bquote(δ^15*"N(‰)"))
-
 ##inverse square law
 #y= α + β*(x^-2)
 nls2<-nls(d15N~a+b*I(1/(Distance^2)),
@@ -76,20 +73,22 @@ ggplot(Cladocera_SIA,aes(x=Distance,y=d15N)) +
 #null model
 nullmod_Clad_N <- lm(d15N ~ 1,data=Cladocera_SIA)
 summary(nullmod_Clad_N)
-AIC(nls1,nls2,nls3,nullmod_Clad_N)
 #evaluate models
 library(AICcmodavg)
-
+AIC(nls1,nls2,nls3,nullmod_Clad_N)
+#graph Calanoida and Cladocera together
+#Cladocera best fit to inverse square,
+#Calanoida vest fit to power law
 ggplot(Zoop_SIA,aes(x=Distance,y=d15N,colour=Order)) + 
   geom_point() + 
   theme_bw() + 
   geom_smooth(method='nls',
-              formula=y~a+b*I(1/x^2),
+              formula=y~a+b*I(1/x^2), #inverse square formula
               se=FALSE,
               method.args=list(start=c(a=13,b=-1)),
               data=Cladocera_SIA) + 
   geom_smooth(method='nls',
-              formula = y~a*x^b,
+              formula = y~a*x^b, #power law formula
               se=FALSE,
               method.args=list(start=c(a=8,b=-0.4)),
               data=Calanoida_SIA) + 
@@ -113,12 +112,10 @@ summary(Cladocera_poly_lm)
 1.5922^6
 #without pond 5
 Cladocera_5<-Cladocera_SIA[-c(5),]
-Cladocera_5$d13C
-Cladocera_SIA$d13C
 Cladocera_5_C_poly<-lm(formula=d13C~poly(Distance,degree=2,raw=T),data=Cladocera_5)
 plot(Cladocera_5_C_poly)
 summary(Cladocera_5_C_poly)
-#LR = (1+F(dfnum/dfdenom))^(n/2)
+#Likelyhood Ratio = (1+F(dfnum/dfdenom))^(n/2)
 6.112*(2/8)
 2.528^(11/2)
 ggplot(Zoop_SIA,aes(x=Distance,y=d13C,colour=Order)) + 
@@ -129,10 +126,10 @@ ggplot(Zoop_SIA,aes(x=Distance,y=d13C,colour=Order)) +
               method.args = list(family = 'gaussian')) +
   labs(x="Distance from colony (km)") +
   ylab(bquote(δ^13*"C(‰)"))
-coef(Calanoid_poly_C)
+coef(Calanoida_poly_C)
 coef(Cladocera_poly_C)
 par(mfrow=c(1,2))
-ggplot(Calanoid_SIA,aes(x=Distance,y=d13C)) + 
+ggplot(Calanoida_SIA,aes(x=Distance,y=d13C)) + 
   geom_point() + 
   theme_bw() +
   geom_smooth(method="glm",
@@ -208,15 +205,3 @@ aictab(cand.set=Clad_C_models,modnames=Clad_C_names)
 #LR = (1+F(dfnum/dfdenom))^(n/2)
 3.021*(1/10)
 1.3021^6
-
-#I wonder if leaving out ponds 11 and 12 change
-#carbon analysis..
-
-ggplot(Zoop_SIA,aes(x=Distance,y=percent.N,colour=Order)) +
-  geom_point() + 
-  theme_bw() +
-  geom_smooth(method='lm',
-              se=FALSE) + 
-  labs(x='Distance from colony (km)',y='%N') + 
-  theme(text=element_text(size=20))
-  
